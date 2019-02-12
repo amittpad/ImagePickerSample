@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
     private Button btn;
     private ImageView imageview;
     private static final String IMAGE_DIRECTORY = "/default";
-    private int REQUEST_GALLARY_IMAGE = 1, REQUEST_CAPTURE_IMAGE = 2;
+    private int REQUEST_GALLARY_IMAGE = 101, REQUEST_CAPTURE_IMAGE = 102;
     private String imageFilePath = "";
     private static int reqCode;
     private Bitmap bitmap;
@@ -66,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
     private String imgpathdetails;
     private String encodedImage;
     Activity activity = MainActivity.this;
+    private int YOUR_RESULT_CODE = 1001;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,7 +86,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
     }
 
     private void showPictureDialog() {
@@ -94,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
         String[] pictureDialogItems = {
                 "Capture photo from camera",
                 "Select photo from gallery",
+                "Select file",
                 "Cancel"};
         pictureDialog.setItems(pictureDialogItems,
                 new DialogInterface.OnClickListener() {
@@ -105,6 +106,9 @@ public class MainActivity extends AppCompatActivity {
                                 break;
                             case 1:
                                 choosePhotoFromGallary();
+                                break;
+                            case 2:
+                                chooseDocumentFile();
                                 break;
                         }
                     }
@@ -140,6 +144,12 @@ public class MainActivity extends AppCompatActivity {
             pictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
             startActivityForResult(pictureIntent, REQUEST_CAPTURE_IMAGE);
         }
+    }
+
+    private void chooseDocumentFile(){
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("file/*");
+        startActivityForResult(intent, YOUR_RESULT_CODE);
     }
 
     @Override
@@ -180,7 +190,6 @@ public class MainActivity extends AppCompatActivity {
 //                    saveImage(imageBitmap);
 //                    Toast.makeText(MainActivity.this, "Image Saved!", Toast.LENGTH_SHORT).show();
 //                }
-
                 /**don't compare the data to null, it will always come as  null because we are providing a file URI,
                  *  so load with the imageFilePath we obtained before opening the cameraIntent*/
 
@@ -204,16 +213,18 @@ public class MainActivity extends AppCompatActivity {
                 imageview.setImageBitmap(bitmap);
 
 
-            } else if (resultCode == RESULT_CANCELED) {
+            }else if (resultCode == RESULT_CANCELED) {
                 Toast.makeText(this, "You cancelled the operation", Toast.LENGTH_SHORT).show();
             }
 
+        } else if (requestCode == YOUR_RESULT_CODE) {
+            Log.e("I am","file ---->");
+            String contentURI = String.valueOf(data.getData());
+            Log.e("I am","document_file ---->"+contentURI);
+            Toast.makeText(this, "You click the file operation", Toast.LENGTH_SHORT).show();
+
         }
     }
-
-
-
-
 
     public String saveImage(Bitmap myBitmap) {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
